@@ -12,17 +12,40 @@
 
 const char *vertexShaderSource = "#version 330 core\n"
     "layout (location = 0) in vec3 aPos;\n"
+    "layout (location = 1) in vec3 inColor;\n"
+    "out vec3 ourColor;\n"
     "void main()\n"
     "{\n"
     "   gl_Position = vec4(aPos.x, aPos.y, aPos.z, 1.0);\n"
+    "   ourColor = inColor;\n"
     "}\0";
 
 const char *fragmentShaderSource = "#version 330 core\n"
     "out vec4 FragColor;\n"
+    "in vec3 ourColor;\n"
     "void main()\n"
     "{\n"
-    "   FragColor = vec4(1.0f, 0.5f, 0.2f, 1.0f);\n"
+    "   FragColor = vec4(ourColor, 1.0f);\n"
     "}\n\0";
+
+//const char *vertexShaderSource ="#version 330 core\n"
+//    "layout (location = 0) in vec3 aPos;\n"
+//    "layout (location = 1) in vec3 aColor;\n"
+//    "out vec3 ourColor;\n"
+//    "void main()\n"
+//    "{\n"
+//    "   gl_Position = vec4(aPos, 1.0);\n"
+//    "   ourColor = aColor;\n"
+//    "}\0";
+//
+//const char *fragmentShaderSource = "#version 330 core\n"
+//    "out vec4 FragColor;\n"
+//    "in vec3 ourColor;\n"
+//    "void main()\n"
+//    "{\n"
+//    "   FragColor = vec4(ourColor, 1.0f);\n"
+//    "}\n\0";
+
 
 
 void framebuffer_size_callback(GLFWwindow* window, int width, int height);
@@ -58,11 +81,19 @@ int main(int argc, char * argv[]) {
 //         0.0f,  0.5f, 0.0f,
 //    };
     
+//    float vertices[] = {
+//         0.5f,  0.5f, 0.0f,  // top right
+//         0.5f, -0.5f, 0.0f,  // bottom right
+//        -0.5f, -0.5f, 0.0f,  // bottom left
+//        -0.5f,  0.5f, 0.0f   // top left
+//    };
+    
     float vertices[] = {
-         0.5f,  0.5f, 0.0f,  // top right
-         0.5f, -0.5f, 0.0f,  // bottom right
-        -0.5f, -0.5f, 0.0f,  // bottom left
-        -0.5f,  0.5f, 0.0f   // top left
+        // positions         // colors
+         0.5f, -0.5f, 0.0f,  1.0f, 0.0f, 0.0f,  // bottom right
+        -0.5f, -0.5f, 0.0f,  0.0f, 1.0f, 0.0f,  // bottom left
+         0.0f,  0.5f, 0.0f,  0.0f, 0.0f, 1.0f   // top
+
     };
     
     unsigned int indices[] = {  // note that we start from 0!
@@ -100,13 +131,17 @@ int main(int argc, char * argv[]) {
     glAttachShader(shaderProgram, fragmentShader);
     glLinkProgram(shaderProgram);
     
-    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 3 * sizeof(float), (void*)0);
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)0);
     glEnableVertexAttribArray(0);
+    
+    glVertexAttribPointer(1, 3, GL_FLOAT, GL_FALSE, 6 * sizeof(float), (void*)(3 * sizeof(float)));
+    glEnableVertexAttribArray(1);
+    
     glDeleteShader(vertexShader);
     glDeleteShader(fragmentShader);
     
     // uncomment this call to draw in wireframe polygons.
-    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
+//    glPolygonMode(GL_FRONT_AND_BACK, GL_LINE);
     
     // Rendering Loop
     while (!glfwWindowShouldClose(window)) {
@@ -118,8 +153,8 @@ int main(int argc, char * argv[]) {
         
         glUseProgram(shaderProgram);
         glBindVertexArray(VAO);
-//        glDrawArrays(GL_TRIANGLES, 0, 3);
-        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+        glDrawArrays(GL_TRIANGLES, 0, 3);
+//        glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 
         // Flip Buffers and Draw
         glfwSwapBuffers(window);
